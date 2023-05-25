@@ -9,8 +9,7 @@ import jakarta.persistence.*;
 public class Participant {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "participant_sequence")
-    @SequenceGenerator(name = "participant_sequence", sequenceName = "user_seq", initialValue = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "First_Name")

@@ -14,7 +14,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 
@@ -23,8 +22,7 @@ import jakarta.persistence.Table;
 public class Event{
 	
 	@Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_sequence")
-    @SequenceGenerator(name = "event_sequence", sequenceName = "event_seq", initialValue = 1)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	
 	@Column(name="Name")
@@ -127,10 +125,6 @@ public class Event{
         participant.setEvent(this);
     }
 
-	
-	
-	
-	
 	
 }
 

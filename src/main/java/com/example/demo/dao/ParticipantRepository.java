@@ -1,4 +1,4 @@
-package com.example.demo.repository;
+package com.example.demo.dao;
 
 import com.example.demo.model.Participant;
 
@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 
 public interface ParticipantRepository extends JpaRepository<Participant, Long> {
-    // Add custom query methods if needed
+    
 }

@@ -1,8 +1,9 @@
+
+
 package com.example.demo.controller;
 
-import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Participant;
-import com.example.demo.repository.ParticipantRepository;
+import com.example.demo.service.ParticipantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,54 +17,41 @@ import java.util.HashMap;
 @RequestMapping("/api/v1")
 public class ParticipantController {
 
-    @Autowired
-    private ParticipantRepository participantRepository;
+    private final ParticipantService participantService;
 
-    // Create a participant
+    @Autowired
+    public ParticipantController(ParticipantService participantService) {
+        this.participantService = participantService;
+    }
+
     @PostMapping("/participants")
     public Participant createParticipant(@RequestBody Participant participant) {
-        return participantRepository.save(participant);
+        return participantService.createParticipant(participant);
     }
 
-    // Retrieve all participants
     @GetMapping("/participants")
     public List<Participant> getAllParticipants() {
-        return participantRepository.findAll();
+        return participantService.getAllParticipants();
     }
 
-    // Retrieve details of a participant by ID
     @GetMapping("/participants/{id}")
     public ResponseEntity<Participant> getParticipantById(@PathVariable Long id) {
-        Participant participant = participantRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Participant not found with id: " + id));
+        Participant participant = participantService.getParticipantById(id);
         return ResponseEntity.ok(participant);
     }
 
-    // Update a participant
     @PutMapping("/participants/{id}")
     public ResponseEntity<Participant> updateParticipant(@PathVariable Long id, @RequestBody Participant participantDetails) {
-        Participant participant = participantRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Participant not found with id: " + id));
-
-        participant.setFirstName(participantDetails.getFirstName());
-        participant.setLastName(participantDetails.getLastName());
-        participant.setOrganizationName(participantDetails.getOrganizationName());
-        participant.setDesignation(participantDetails.getDesignation());
-        participant.setEmailAddress(participantDetails.getEmailAddress());
-
-        Participant updatedParticipant = participantRepository.save(participant);
+        Participant updatedParticipant = participantService.updateParticipant(id, participantDetails);
         return ResponseEntity.ok(updatedParticipant);
     }
 
-    // Delete a participant
     @DeleteMapping("/participants/{id}")
     public ResponseEntity<Map<String, Boolean>> deleteParticipant(@PathVariable Long id) {
-        Participant participant = participantRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Participant not found with id: " + id));
-
-        participantRepository.delete(participant);
+        participantService.deleteParticipant(id);
         Map<String, Boolean> response = new HashMap<>();
         response.put("deleted", Boolean.TRUE);
         return ResponseEntity.ok(response);
     }
 }
+
