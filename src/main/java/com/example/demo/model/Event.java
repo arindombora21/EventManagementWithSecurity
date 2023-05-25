@@ -2,23 +2,29 @@ package com.example.demo.model;
 
 
 
+import java.util.List;
+
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+
 
 @Entity
 @Table(name="events")
 public class Event{
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_sequence")
+    @SequenceGenerator(name = "event_sequence", sequenceName = "event_seq", initialValue = 1)
 	private int id;
 	
 	@Column(name="Name")
@@ -35,9 +41,6 @@ public class Event{
 	private String emailId;
 	@Column(name="Status")
 	private String status;
-	
-    
-    @JsonIgnoreProperties("users")
    
 	
 	public Event() {
@@ -104,6 +107,28 @@ public class Event{
 	public void setStatus(String status) {
 		this.status = status;
 	}
+	
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("event")
+    private List<Participant> participants;
+
+    // Getters and setters
+
+    public List<Participant> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(List<Participant> participants) {
+        this.participants = participants;
+    }
+    
+    public void registerParticipant(Participant participant) {
+        participants.add(participant);
+        participant.setEvent(this);
+    }
+
+	
+	
 	
 	
 	

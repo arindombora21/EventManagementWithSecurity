@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Event;
+import com.example.demo.model.Participant;
 import com.example.demo.repository.EventRepository;
+import com.example.demo.repository.ParticipantRepository;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -19,6 +22,8 @@ public class EventController {
 
     @Autowired
     private EventRepository eventRepository;
+    
+
 
     // Create an Event
     @PostMapping("/events")
@@ -38,13 +43,18 @@ public class EventController {
         return eventRepository.findByLocation(location);
     }
 
-    // Retrieve details of one event with all details
+     //Retrieve details of one event with all details
     @GetMapping("/events/{id}")
     public ResponseEntity<Event> getEventById(@PathVariable Long id) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + id));
+        List<Participant> participants = event.getParticipants();
+        event.setParticipants(participants);
         return ResponseEntity.ok(event);
     }
+    
+
+
 
     // Update an event
     @PutMapping("/events/{id}")
@@ -73,5 +83,40 @@ public class EventController {
         Map<String, Boolean> response = new HashMap<>();
         response.put("deleted", Boolean.TRUE);
         return ResponseEntity.ok(response);
+    }
+    
+    @Autowired
+    private ParticipantRepository participantRepository;
+    
+    // Retrieve all participants of an event
+    @GetMapping("/events/{id}/participants")
+    public ResponseEntity<List<Participant>> getEventParticipants(@PathVariable Long id) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + id));
+        List<Participant> participants = event.getParticipants();
+        return ResponseEntity.ok(participants);
+    }
+
+    // Register a participant for an event
+    @PostMapping("/events/{id}/participants")
+    public ResponseEntity<Participant> registerParticipant(@PathVariable Long id, @RequestBody Participant participant) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + id));
+        participant.setEvent(event);
+        Participant savedParticipant = participantRepository.save(participant);
+        return ResponseEntity.ok(savedParticipant);
+    }
+    
+    @PostMapping("/{eventId}/register")
+    public ResponseEntity<?> registerParticipant(@PathVariable("eventId") long eventId, @RequestBody Participant participant) {
+        Optional<Event> optionalEvent = eventRepository.findById(eventId);
+        if (optionalEvent.isPresent()) {
+            Event event = optionalEvent.get();
+            event.registerParticipant(participant);
+            eventRepository.save(event);
+            return ResponseEntity.ok("Participant registered successfully.");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

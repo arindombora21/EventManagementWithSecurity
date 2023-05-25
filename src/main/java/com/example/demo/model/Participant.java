@@ -1,5 +1,7 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -7,7 +9,8 @@ import jakarta.persistence.*;
 public class Participant {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "participant_sequence")
+    @SequenceGenerator(name = "participant_sequence", sequenceName = "user_seq", initialValue = 1)
     private Long id;
 
     @Column(name = "First_Name")
@@ -84,5 +87,20 @@ public class Participant {
 
     public void setEmailAddress(String emailAddress) {
         this.emailAddress = emailAddress;
+    }
+    
+    @ManyToOne
+    @JoinColumn(name = "Event_Id")
+    @JsonIgnoreProperties("participants")
+    private Event event;
+
+    // Getters and setters
+
+    public Event getEvent() {
+        return event;
+    }
+
+    public void setEvent(Event event) {
+        this.event = event;
     }
 }
