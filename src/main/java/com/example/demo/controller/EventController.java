@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 //@CrossOrigin(origins = "http://localhost:3000")
-@CrossOrigin(origins = "https://disgusting-value-production.up.railway.app")
+@CrossOrigin(origins = "https://eventmanagementfrontend-production.up.railway.app")
 @RestController
 @RequestMapping("/api/v1")
 public class EventController {
