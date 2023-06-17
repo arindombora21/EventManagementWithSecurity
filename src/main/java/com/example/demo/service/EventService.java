@@ -1,30 +1,44 @@
 package com.example.demo.service;
 
 import com.example.demo.dao.EventRepository;
+import com.example.demo.dao.OwnerRepository;
 import com.example.demo.dao.ParticipantRepository;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Event;
+import com.example.demo.model.Owner;
 import com.example.demo.model.Participant;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class EventService {
 
     private final EventRepository eventRepository;
     private final ParticipantRepository participantRepository;
+    private final OwnerRepository ownerRepository;
 
     @Autowired
-    public EventService(EventRepository eventRepository, ParticipantRepository participantRepository) {
+    public EventService(EventRepository eventRepository, ParticipantRepository participantRepository,OwnerRepository ownerRepository) {
         this.eventRepository = eventRepository;
         this.participantRepository = participantRepository;
+        this.ownerRepository = ownerRepository;
     }
 
     public Event createEvent(Event event) {
+    	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Owner owner= this.ownerRepository.findByUsername(authentication.getName());
+		Set<Event> temp= owner.getEvents();
+		temp.add(event);
+		owner.setEvents(temp);
+		this.ownerRepository.save(owner);
+		event.setOwner(owner);
         return eventRepository.save(event);
     }
 

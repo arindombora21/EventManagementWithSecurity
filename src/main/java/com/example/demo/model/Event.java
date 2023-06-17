@@ -13,6 +13,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -39,13 +40,13 @@ public class Event{
 	private String emailId;
 	@Column(name="Status")
 	private String status;
-   
+    
 	
 	public Event() {
 		
 	}
 	
-	public Event(String name, String description, String startdate, String enddate, String location, String emailId, String status) {
+	public Event(Owner owner,String name, String description, String startdate, String enddate, String location, String emailId, String status) {
 		super();
 		this.name = name;
 		this.description = description;
@@ -54,6 +55,7 @@ public class Event{
 		this.location = location;
 		this.emailId = emailId;
 		this.status = status;
+		this.owner=owner;
 	}
 	public int getId() {
 		return id;
@@ -106,6 +108,15 @@ public class Event{
 		this.status = status;
 	}
 	
+	@ManyToOne
+    @JsonIgnoreProperties("events")
+    private Owner owner;
+	public Owner getOwner() {
+		return owner;
+	}
+	public void setOwner(Owner owner) {
+		this.owner = owner;
+	}
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("event")
     private List<Participant> participants;
