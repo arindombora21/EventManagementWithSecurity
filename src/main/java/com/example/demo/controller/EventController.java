@@ -7,6 +7,8 @@ import com.example.demo.model.Participant;
 import com.example.demo.service.EventService;
 import com.example.demo.service.OwnerServices;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -31,8 +33,8 @@ public class EventController {
     }
 
     @PostMapping("/events")
-    public Event createEvent(@RequestBody Event event) {
-        return eventService.createEvent(event);
+    public Event createEvent(@RequestBody Event event,HttpServletRequest request) {
+        return eventService.createEvent(event,request);
     }
 
     @GetMapping("/events")
@@ -45,6 +47,11 @@ public class EventController {
         return eventService.getEventsByLocation(location);
     }
 
+    @GetMapping("/events/owner/{id}")
+    public List<Event> getEventsByLocation(@PathVariable long id) {
+        return eventService.getEventByOwner(id);
+    }
+    
     @GetMapping("/events/{id}")
     public ResponseEntity<Event> getEventById(@PathVariable Long id) {
         Event event = eventService.getEventById(id);

@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.Security.JwtTokenHelper;
 import com.example.demo.dao.EventRepository;
 import com.example.demo.dao.OwnerRepository;
 import com.example.demo.dao.ParticipantRepository;
@@ -7,6 +8,8 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Event;
 import com.example.demo.model.Owner;
 import com.example.demo.model.Participant;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -23,17 +26,19 @@ public class EventService {
     private final EventRepository eventRepository;
     private final ParticipantRepository participantRepository;
     private final OwnerRepository ownerRepository;
+    private final JwtTokenHelper jwtTokenHelper;
 
     @Autowired
-    public EventService(EventRepository eventRepository, ParticipantRepository participantRepository,OwnerRepository ownerRepository) {
+    public EventService(EventRepository eventRepository, ParticipantRepository participantRepository,OwnerRepository ownerRepository,JwtTokenHelper jwtTokenHelper) {
         this.eventRepository = eventRepository;
         this.participantRepository = participantRepository;
         this.ownerRepository = ownerRepository;
+        this.jwtTokenHelper = jwtTokenHelper;
     }
 
-    public Event createEvent(Event event) {
-    	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		Owner owner= this.ownerRepository.findByUsername(authentication.getName());
+    public Event createEvent(Event event,HttpServletRequest request) {
+    	String username = this.jwtTokenHelper.getUsernameFromToken(request.getHeader("Authorization").substring(7));
+		Owner owner= this.ownerRepository.findByUsername(username);
 		Set<Event> temp= owner.getEvents();
 		temp.add(event);
 		owner.setEvents(temp);
@@ -45,7 +50,10 @@ public class EventService {
     public List<Event> getAllEvents() {
         return eventRepository.findAll();
     }
-
+    
+    public List<Event> getEventByOwner(long id){
+    	return eventRepository.findByOwner_id(id);
+    }
     public List<Event> getEventsByLocation(String location) {
         return eventRepository.findByLocation(location);
     }

@@ -13,4 +13,5 @@ import com.example.demo.model.Event;
 public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findByLocation(String location);
+    List<Event> findByOwner_id(long id);
 }
